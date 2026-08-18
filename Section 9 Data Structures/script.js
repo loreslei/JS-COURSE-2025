@@ -53,8 +53,11 @@ for (const flight of rows) {
 
   const fixed_hour = hour.replace(':', 'h');
 
-  let first = fixed_info.split(' ')[0] === 'Delayed' ? '⛔ ' + fixed_info : fixed_info.padStart(20)
+  const first = fixed_info.split(' ')[0] === 'Delayed' ? '⛔ ' + fixed_info : fixed_info
 
+  const output = `${first} from ${nameP1} to ${nameP2} (${fixed_hour})`
 
-  console.log(`${first} from ${nameP1} to ${nameP2} (${fixed_hour})`);
+  console.log(output.padStart(36
+    
+  ));
 }
