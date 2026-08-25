@@ -76,7 +76,17 @@ const displayMovements = function (movements) {
   });
 };
 
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce((acc, cur) => {
+    return acc + cur;
+  }, 0);
+
+  labelBalance.textContent = `R$ ${balance}`;
+};
+
+// Display
 displayMovements(account1.movements);
+calcDisplayBalance(account1.movements);
 
 const createUsernames = function (accs) {
   accs.forEach((acc) => {
@@ -91,8 +101,6 @@ const createUsernames = function (accs) {
 };
 
 createUsernames(accounts);
-
-console.log(account1.username);
 
 // console.log(containerMovements.innerHTML);
 
