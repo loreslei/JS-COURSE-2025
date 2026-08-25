@@ -51,3 +51,10 @@ document
 poll.displayResults.call({ answers: [5, 2, 3] }, 'string');
 
 poll.displayResults.call({ answers: [1, 5, 3, 9, 6, 1] }, 'string');
+
+(function () {
+  const header = document.querySelector('h1');
+  header.style.color = 'blue';
+})();
+
+// It behaves this way because the function is being called one time and auto-executing herself. But it would work anyway even if the function was not there. Since it's an anonymous function that will be executed from start
