@@ -69,24 +69,41 @@ const displayMovements = function (movements) {
 
     const html = `<div class='movements__row'>
       <div class='movements__type movements__type--${type}'>${i + 1} ${type}</div>
-      <div class='movements__value'>${mov}€</div>
+      <div class='movements__value'>R$ ${mov}</div>
     </div>;`;
 
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
 
-const calcDisplayBalance = function (movements) {
-  const balance = movements.reduce((acc, cur) => {
-    return acc + cur;
-  }, 0);
+const calcDisplaySummary = function (movements, ir) {
+  // Incomes
+  const incomes = movements
+    .filter((mov) => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
 
-  labelBalance.textContent = `R$ ${balance}`;
+  labelSumIn.textContent = `R$ ${incomes}`;
+
+  // Outcomes
+  const outcomes = movements
+    .filter((mov) => mov < 0)
+    .reduce((acc, mov) => acc + mov, 0);
+
+  labelSumOut.textContent = `R$ ${Math.abs(outcomes)}`;
+
+  // Interest
+  const interest = movements
+    .filter((mov) => mov > 0)
+    .map((dep) => (dep * ir) / 100)
+    .filter((int, i, arr) => int >= 1)
+    .reduce((acc, int) => acc + int, 0);
+
+  labelSumInterest.textContent = `R$ ${interest.toFixed(2).replace('.', ',')}`;
 };
 
-// Display
-displayMovements(account1.movements);
-calcDisplayBalance(account1.movements);
+const calcDisplayBalance = function (acc) {
+  labelBalance.textContent = `R$ ${acc.balance}`;
+};
 
 const createUsernames = function (accs) {
   accs.forEach((acc) => {
@@ -100,7 +117,121 @@ const createUsernames = function (accs) {
   });
 };
 
+const createBalance = function (accs) {
+  accs.forEach((acco) => {
+    acco.balance = acco.movements.reduce((acc, cur) => acc + cur, 0);
+  });
+};
+
+const getAccount = function (username, pin, accs) {
+  return accs.find(
+    (user) =>
+      (user?.username === username || user?.owner === username) &&
+      user?.pin === Number(pin),
+  );
+};
+
+const closeAccount = function (username, pin, acc, accs) {
+  const index = accs.findIndex((user) => username === user.username);
+  if (username === acc?.username && Number(pin) === acc?.pin) {
+    accs.splice(index, 1);
+  }
+};
+
+const updateUI = function (acc) {
+  displayMovements(acc.movements);
+  calcDisplayBalance(acc);
+  calcDisplaySummary(acc.movements, acc.interestRate);
+};
+
 createUsernames(accounts);
+createBalance(accounts);
+let acc;
+btnLogin.addEventListener('click', (e) => {
+  e.preventDefault();
+  acc = getAccount(inputLoginUsername.value, inputLoginPin.value, accounts);
+
+  // Display
+  updateUI(acc);
+
+  // Clear input fields
+  inputLoginUsername.value = '';
+  inputLoginPin.value = '';
+
+  // Blur fields
+  inputLoginPin.blur();
+  inputLoginUsername.blur();
+
+  labelWelcome.textContent = `Welcome back, ${acc.owner.split(' ')[0]}`;
+
+  containerApp.style.opacity = 100;
+});
+
+btnTransfer.addEventListener('click', (e) => {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+
+  const receiver = accounts.find(
+    (user) => user?.username === inputTransferTo.value,
+  );
+
+  if (
+    amount > 0 &&
+    acc.balance >= amount &&
+    receiver?.username !== acc.username
+  ) {
+    acc.balance -= amount;
+    receiver.balance += amount;
+    acc.movements.push(-amount);
+    receiver.movements.push(amount);
+
+    // UI
+    updateUI(acc);
+
+    // Clean inputs
+    inputTransferAmount.value = '';
+    inputTransferTo.value = '';
+
+    inputTransferTo.blur();
+    inputTransferAmount.blur();
+    console.log('Transfer valid');
+  }
+});
+
+btnClose.addEventListener('click', (e) => {
+  e.preventDefault();
+  closeAccount(inputCloseUsername.value, inputClosePin.value, acc, accounts);
+  console.log('Fechou');
+
+  // Clean inputs
+  inputCloseUsername.value = '';
+  inputClosePin.value = '';
+
+  inputCloseUsername.blur();
+  inputClosePin.blur();
+
+  // Hide UI
+  containerApp.style.opacity = 0;
+
+  labelWelcome.textContent = 'Log in to get started';
+});
+
+btnLoan.addEventListener('click', (e) => {
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+  if (amount > 0 && acc.movements.some((mov) => mov >= amount * 0.1)) {
+    acc.movements.push(amount);
+
+    // Update UI
+    acc.balance += amount;
+    updateUI(acc);
+    
+
+    inputLoanAmount.value = '';
+    inputLoanAmount.blur();
+  }
+});
 
 // console.log(containerMovements.innerHTML);
 
