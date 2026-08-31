@@ -1,0 +1,1 @@
+Tentar reescrever as funções pros arrays de map e etc com reduce

@@ -50,6 +50,6 @@ const groupedByActivity = Object.groupBy(accounts, (account) => {
   return 'inactive';
 });
 
-const groupedAccounts = Object.groupBy(accounts, ({ type }) => type);
+const groupedAccounts = Object.groupBy(accounts, ({type}) => type)
 
 console.log(groupedAccounts);

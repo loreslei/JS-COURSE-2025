@@ -226,10 +226,22 @@ btnLoan.addEventListener('click', (e) => {
     // Update UI
     acc.balance += amount;
     updateUI(acc);
-    
 
     inputLoanAmount.value = '';
     inputLoanAmount.blur();
+  }
+});
+
+let desordenar = 1;
+btnSort.addEventListener('click', (e) => {
+  e.preventDefault();
+  desordenar *= -1;
+  if (desordenar === -1) {
+    acc.orderedMovements = acc.movements.slice().sort((a, b) => a - b);
+    console.log(acc.orderedMovements);
+    displayMovements(acc.orderedMovements);
+  } else {
+    displayMovements(acc.movements);
   }
 });
 
